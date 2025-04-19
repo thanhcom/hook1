@@ -6,6 +6,13 @@ pipeline {
         jdk 'JDK_11'
     }
 
+    agent {
+        docker {
+            image 'docker:24.0.5-dind' // Docker image có sẵn Docker daemon
+            args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
     environment {
         IMAGE_NAME = 'thanhcom/my-app'
         IMAGE_TAG = 'latest'
