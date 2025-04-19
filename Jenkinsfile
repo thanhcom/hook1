@@ -9,6 +9,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'thanhcom/my-app'
         IMAGE_TAG = 'latest'
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // ID của Docker credentials trong Jenkins
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
             }
         }
 
-         stage('Unit Test') {
+        stage('Unit Test') {
             steps {
                 sh 'mvn test'
             }
@@ -33,6 +34,17 @@ pipeline {
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                        def image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                        image.push()
+                    }
+                }
             }
         }
     }
