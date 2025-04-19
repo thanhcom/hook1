@@ -13,10 +13,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/thanhcom/hook1.git' ,branch: 'main' // Đổi URL repo tại đây
+                git url: 'https://github.com/thanhcom/hook1.git', branch: 'main'
             }
         }
-
         stage('Build') {
             steps {
                 sh 'mvn clean install'
