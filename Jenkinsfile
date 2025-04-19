@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/thanhcom/hook1.git'  // Đổi URL repo tại đây
+                git 'https://github.com/thanhcom/hook1.git' ,branch: 'main' // Đổi URL repo tại đây
             }
         }
 
