@@ -9,7 +9,6 @@ pipeline {
     environment {
         IMAGE_NAME = 'thanhcom/my-app'
         IMAGE_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub')  // thêm trong Jenkins Credentials
     }
 
     stages {
