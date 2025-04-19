@@ -12,36 +12,38 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('docker-hub')  // thêm trong Jenkins Credentials
     }
 
+
     stages {
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git url: 'https://github.com/thanhcom/hook1.git', branch: 'main'
+                git 'https://github.com/your-user/your-repo.git' // đổi lại repo của bạn
             }
         }
 
-        stage('Build Maven') {
+        stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-        stage('Unit Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Archive Artifact') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                sh 'mvn clean install'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
             }
         }
-    }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
+                }
+            }
+        }
+       }
 
     post {
         success {
