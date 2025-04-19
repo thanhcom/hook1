@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/your-user/your-repo.git' // đổi lại repo của bạn
+                git url: 'https://github.com/thanhcom/hook1.git', branch: 'main'
             }
         }
 
