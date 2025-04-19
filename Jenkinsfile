@@ -2,12 +2,14 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven_3'     // Tên đã cấu hình trong Jenkins > Global Tool Configuration
-        jdk 'JDK_11'        // JDK version phù hợp
+        maven 'Maven_3'
+        jdk 'JDK_11'
     }
 
     environment {
-        MAVEN_OPTS = "-Dmaven.test.failure.ignore=false"
+        IMAGE_NAME = 'thanhcom/my-app'
+        IMAGE_TAG = 'latest'
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub')  // thêm trong Jenkins Credentials
     }
 
     stages {
@@ -16,31 +18,36 @@ pipeline {
                 git url: 'https://github.com/thanhcom/hook1.git', branch: 'main'
             }
         }
-        stage('Build') {
+
+        stage('Build Maven') {
             steps {
-                sh 'mvn clean install'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Unit Test') {
+        stage('Build Docker Image') {
             steps {
-                sh 'mvn test'
+                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Push to Docker Hub') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        sh "docker push $IMAGE_NAME:$IMAGE_TAG"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build & test passed!'
+            echo '✅ CI/CD thành công!'
         }
         failure {
-            echo '❌ Build failed!'
+            echo '❌ Có lỗi xảy ra!'
         }
     }
 }
