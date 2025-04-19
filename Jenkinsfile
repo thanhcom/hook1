@@ -23,6 +23,9 @@ pipeline {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
+             steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
         }
 
         stage('Build Docker Image') {
